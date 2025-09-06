@@ -149,17 +149,18 @@ def shortest_path():
         "time": result["time"],
         "cost": result["cost"]
     })
-from flask import send_from_directory
+from flask import send_file
+import os
 
 @app.route("/")
 def serve_frontend():
-    return send_from_directory(app.root_path, "frontend.html")
+    # Use absolute path to frontend.html
+    return send_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend.html"))
 
 # -----------------------
 # Run Flask
 # -----------------------
-import os
-
 if __name__ == "__main__":
+    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
