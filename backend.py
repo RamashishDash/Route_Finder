@@ -150,11 +150,10 @@ def shortest_path():
         "cost": result["cost"]
     })
 from flask import send_from_directory
-import os
 
 @app.route("/")
 def serve_frontend():
-    return send_from_directory(os.path.dirname(__file__), "frontend.html")
+    return send_from_directory(app.root_path, "frontend.html")
 
 # -----------------------
 # Run Flask
