@@ -1,6 +1,7 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import csv
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +20,6 @@ class Graph:
             idx = len(self.vertexData)
             self.vertexData[city] = idx
             self.coordinates[city] = (lat, lon)
-            # expand adjacency matrix
             for row in self.adjMatrix:
                 row.append(None)
             self.adjMatrix.append([None] * len(self.vertexData))
@@ -27,7 +27,7 @@ class Graph:
     def addEdge(self, src, dest, dist, time, cost):
         i, j = self.vertexData[src], self.vertexData[dest]
         self.adjMatrix[i][j] = {"distance": dist, "time": time, "cost": cost}
-        self.adjMatrix[j][i] = {"distance": dist, "time": time, "cost": cost}  # undirected
+        self.adjMatrix[j][i] = {"distance": dist, "time": time, "cost": cost}
 
     def loadFromCSV(self, filename):
         with open(filename, "r", encoding="utf-8") as file:
@@ -47,9 +47,6 @@ class Graph:
                 self.addVertex(dest, dest_lat, dest_lon)
                 self.addEdge(src, dest, dist, time, cost)
 
-    # -----------------------
-    # Dijkstra's algorithm
-    # -----------------------
     def dijkstras(self, startCity, endCity, mode="shortest"):
         n = len(self.vertexData)
         cities = list(self.vertexData.keys())
@@ -87,7 +84,6 @@ class Graph:
                         dis[v] = dis[u] + weight
                         pred[v] = u
 
-        # reconstruct path
         path = []
         current = endIndex
         while current != -1:
@@ -95,7 +91,6 @@ class Graph:
             current = pred[current]
         path.reverse()
 
-        # compute totals
         total_distance, total_time, total_cost = 0, 0, 0
         for i in range(len(path) - 1):
             u = self.vertexData[path[i]]
@@ -113,10 +108,10 @@ class Graph:
         }
 
 # -----------------------
-# Load graph from CSV
+# Load graph
 # -----------------------
 g = Graph()
-g.loadFromCSV("routes.csv")   # use the expanded CSV
+g.loadFromCSV(os.path.join(os.path.dirname(os.path.abspath(__file__)), "routes.csv"))
 
 # -----------------------
 # Flask API
@@ -149,18 +144,17 @@ def shortest_path():
         "time": result["time"],
         "cost": result["cost"]
     })
-from flask import send_file
-import os
 
+# -----------------------
+# Serve frontend
+# -----------------------
 @app.route("/")
 def serve_frontend():
-    # Use absolute path to frontend.html
     return send_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend.html"))
 
 # -----------------------
 # Run Flask
 # -----------------------
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
