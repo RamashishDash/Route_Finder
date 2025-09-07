@@ -29,24 +29,27 @@ class Graph:
         self.adjMatrix[i][j] = {"distance": dist, "time": time, "cost": cost}
         self.adjMatrix[j][i] = {"distance": dist, "time": time, "cost": cost}
 
-    def loadFromCSV(self, filename):
-        with open(filename, "r", encoding="utf-8") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                src = row["source"]
-                dest = row["target"]
-                dist = float(row["distance_km"])
-                time = float(row["time_hr"])
-                cost = float(row.get("cost_inr", 0))  # Read INR directly
+    ddef loadFromCSV(self, filename):
+    with open(filename, "r", encoding="utf-8") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            src = row["source"]
+            dest = row["target"]
+            dist = float(row["distance_km"])
+            time = float(row["time_hr"])
+            
+            # Use INR directly
+            cost = float(row["cost_inr"]) if "cost_inr" in row else 0.0
 
-                src_lat = float(row["source_lat"])
-                src_lon = float(row["source_lon"])
-                dest_lat = float(row["target_lat"])
-                dest_lon = float(row["target_lon"])
+            src_lat = float(row["source_lat"])
+            src_lon = float(row["source_lon"])
+            dest_lat = float(row["target_lat"])
+            dest_lon = float(row["target_lon"])
 
-                self.addVertex(src, src_lat, src_lon)
-                self.addVertex(dest, dest_lat, dest_lon)
-                self.addEdge(src, dest, dist, time, cost)
+            self.addVertex(src, src_lat, src_lon)
+            self.addVertex(dest, dest_lat, dest_lon)
+            self.addEdge(src, dest, dist, time, cost)
+
 
     # -----------------------
     # Dijkstra's algorithm

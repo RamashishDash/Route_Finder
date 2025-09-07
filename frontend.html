@@ -222,7 +222,7 @@ function findRoute(scope,map,markersObj,routeRef,modeSel,srcSel,destSel,distEl,t
         map.fitBounds(routeRef.val.getBounds().pad(0.2));
         distEl.textContent=data.distance.toFixed(2);
         timeEl.textContent=data.time.toFixed(2);
-        costEl.textContent = (data.cost * 83).toLocaleString("en-IN", { maximumFractionDigits: 2 }); // Convert USD → INR with commas
+        costEl.textContent = "₹" + data.cost.toLocaleString("en-IN", { maximumFractionDigits: 2 });
         pathListEl.innerHTML="";
         data.path.forEach(city=>{
             const li=document.createElement("li");
