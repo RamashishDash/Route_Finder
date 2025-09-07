@@ -1,4 +1,4 @@
-flask
-pandas
-numpy
-requests
+flask==2.3.3
+pandas==2.0.3
+numpy==1.26.1
+requests==2.31.0
