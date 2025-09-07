@@ -1,6 +1,7 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import csv
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -58,10 +59,9 @@ class Graph:
         endIndex = self.vertexData[endCity]
         dis[startIndex] = 0
 
-        weightKey = {"shortest":"distance","fastest":"time","cheapest":"cost"}.get(mode,"distance")
+        weightKey = {"shortest": "distance", "fastest": "time", "cheapest": "cost"}.get(mode, "distance")
 
         for _ in range(n):
-            # Pick the unvisited node with the smallest distance
             minDist = float('inf')
             u = -1
             for i in range(n):
@@ -87,14 +87,13 @@ class Graph:
             current = pred[current]
         path.reverse()
 
-        # if no path found
         if path[0] != startCity:
             return {"path": [], "distance": 0, "time": 0, "cost": 0}
 
         total_distance, total_time, total_cost = 0, 0, 0
-        for i in range(len(path)-1):
+        for i in range(len(path) - 1):
             u = self.vertexData[path[i]]
-            v = self.vertexData[path[i+1]]
+            v = self.vertexData[path[i + 1]]
             edge = self.adjMatrix[u][v]
             total_distance += edge["distance"]
             total_time += edge["time"]
@@ -109,7 +108,7 @@ globalGraph = Graph()
 globalGraph.loadFromCSV("routes.csv")
 
 domesticGraph = Graph()
-domesticGraph.loadFromCSV("routes_india.csv")  # your 50+ Indian cities
+domesticGraph.loadFromCSV("routes_india.csv")
 
 # -----------------------
 # Flask API
@@ -118,7 +117,7 @@ domesticGraph.loadFromCSV("routes_india.csv")  # your 50+ Indian cities
 def get_cities():
     scope = request.args.get("scope", "global")
     result = []
-    graph = globalGraph if scope=="global" else domesticGraph
+    graph = globalGraph if scope == "global" else domesticGraph
     for city in graph.vertexData:
         lat, lon = graph.coordinates[city]
         result.append({"name": city, "lat": lat, "lon": lon})
@@ -132,19 +131,26 @@ def shortest_path():
     mode = data.get("mode", "shortest")
     scope = data.get("scope", "global")
 
-    graph = globalGraph if scope=="global" else domesticGraph
+    graph = globalGraph if scope == "global" else domesticGraph
 
     if src not in graph.vertexData or dest not in graph.vertexData:
-        return jsonify({"error":"Invalid city names"}), 400
+        return jsonify({"error": "Invalid city names"}), 400
 
     result = graph.dijkstras(src, dest, mode)
     if not result["path"]:
-        return jsonify({"error":"No path found"}), 400
+        return jsonify({"error": "No path found"}), 400
 
     return jsonify(result)
 
 # -----------------------
+# Serve frontend.html
+# -----------------------
+@app.route("/")
+def serve_frontend():
+    return send_from_directory(os.getcwd(), "frontend.html")
+
+# -----------------------
 # Run Flask
 # -----------------------
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(debug=True)
