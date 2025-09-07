@@ -20,8 +20,10 @@ class Graph:
             idx = len(self.vertexData)
             self.vertexData[city] = idx
             self.coordinates[city] = (lat, lon)
+            # Expand existing rows in adjacency matrix
             for row in self.adjMatrix:
                 row.append(None)
+            # Add new row for new vertex
             self.adjMatrix.append([None] * len(self.vertexData))
 
     def addEdge(self, src, dest, dist, time, cost):
@@ -30,26 +32,23 @@ class Graph:
         self.adjMatrix[j][i] = {"distance": dist, "time": time, "cost": cost}
 
     def loadFromCSV(self, filename):
-    with open(filename, "r", encoding="utf-8") as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            src = row["source"]
-            dest = row["target"]
-            dist = float(row["distance_km"])
-            time = float(row["time_hr"])
-            
-            # Use INR directly
-            cost = float(row["cost_inr"]) if "cost_inr" in row else 0.0
+        with open(filename, "r", encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                src = row["source"]
+                dest = row["target"]
+                dist = float(row["distance_km"])
+                time = float(row["time_hr"])
+                cost = float(row.get("cost_inr", 0))  # INR only
 
-            src_lat = float(row["source_lat"])
-            src_lon = float(row["source_lon"])
-            dest_lat = float(row["target_lat"])
-            dest_lon = float(row["target_lon"])
+                src_lat = float(row["source_lat"])
+                src_lon = float(row["source_lon"])
+                dest_lat = float(row["target_lat"])
+                dest_lon = float(row["target_lon"])
 
-            self.addVertex(src, src_lat, src_lon)
-            self.addVertex(dest, dest_lat, dest_lon)
-            self.addEdge(src, dest, dist, time, cost)
-
+                self.addVertex(src, src_lat, src_lon)
+                self.addVertex(dest, dest_lat, dest_lon)
+                self.addEdge(src, dest, dist, time, cost)
 
     # -----------------------
     # Dijkstra's algorithm
@@ -65,9 +64,10 @@ class Graph:
         endIndex = self.vertexData[endCity]
         dis[startIndex] = 0
 
-        weightKey = {"shortest":"distance","fastest":"time","cheapest":"cost"}.get(mode,"distance")
+        weightKey = {"shortest":"distance","fastest":"time","cheapest":"cost"}.get(mode, "distance")
 
         for _ in range(n):
+            # Select unvisited node with smallest distance
             minDist = float('inf')
             u = -1
             for i in range(n):
@@ -93,7 +93,7 @@ class Graph:
             current = pred[current]
         path.reverse()
 
-        if path[0] != startCity:  # no path found
+        if not path or path[0] != startCity:
             return {"path": [], "distance": 0, "time": 0, "cost": 0}
 
         total_distance, total_time, total_cost = 0, 0, 0
@@ -158,5 +158,5 @@ def serve_frontend():
 # -----------------------
 # Run Flask
 # -----------------------
-if __name__=="__main__":
+if __name__ == "__main__":
     app.run(debug=True)
