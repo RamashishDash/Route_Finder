@@ -76,7 +76,7 @@ body.dark ol li:hover { background: rgba(255, 0, 100, 0.2); }
           <h6 class="fw-bold">📊 Route Info</h6>
           <div>Distance: <span id="distanceGlobal">-</span> km</div>
           <div>Time: <span id="timeGlobal">-</span> hr</div>
-          <div>Cost: $<span id="costGlobal">-</span></div>
+          <div>Cost: ₹<span id="costGlobal">-</span></div>
           <div class="mt-2"><strong>Path:</strong><ol id="pathListGlobal"></ol></div>
         </div>
       </div></div>
@@ -176,10 +176,7 @@ applyTheme(localStorage.getItem("darkMode")==="true");
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  setTimeout(()=>{
-    if(id==="global"){mapGlobal.invalidateSize();}
-    if(id==="domestic"){mapDomestic.invalidateSize();}
-  },200);
+  setTimeout(()=>{if(id==="global"){mapGlobal.invalidateSize();} if(id==="domestic"){mapDomestic.invalidateSize();}},200);
 }
 
 // MAPS
@@ -225,7 +222,7 @@ function findRoute(scope,map,markersObj,routeRef,modeSel,srcSel,destSel,distEl,t
         map.fitBounds(routeRef.val.getBounds().pad(0.2));
         distEl.textContent=data.distance.toFixed(2);
         timeEl.textContent=data.time.toFixed(2);
-        costEl.textContent = (data.cost * 83).toFixed(2); // Convert USD → INR
+        costEl.textContent = (data.cost * 83).toLocaleString("en-IN", { maximumFractionDigits: 2 }); // Convert USD → INR with commas
         pathListEl.innerHTML="";
         data.path.forEach(city=>{
             const li=document.createElement("li");

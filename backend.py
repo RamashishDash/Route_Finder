@@ -37,7 +37,16 @@ class Graph:
                 dest = row["target"]
                 dist = float(row["distance_km"])
                 time = float(row["time_hr"])
-                cost = float(row["cost_usd"])
+
+                # ---- Currency normalization ----
+                if "cost_usd" in row:
+                    # convert USD → INR (approx ₹83 per $)
+                    cost = float(row["cost_usd"]) * 83.0
+                elif "cost_inr" in row:
+                    cost = float(row["cost_inr"])
+                else:
+                    cost = 0.0
+
                 src_lat = float(row["source_lat"])
                 src_lon = float(row["source_lon"])
                 dest_lat = float(row["target_lat"])
@@ -47,7 +56,9 @@ class Graph:
                 self.addVertex(dest, dest_lat, dest_lon)
                 self.addEdge(src, dest, dist, time, cost)
 
+    # -----------------------
     # Dijkstra's algorithm
+    # -----------------------
     def dijkstras(self, startCity, endCity, mode="shortest"):
         n = len(self.vertexData)
         cities = list(self.vertexData.keys())
@@ -59,7 +70,7 @@ class Graph:
         endIndex = self.vertexData[endCity]
         dis[startIndex] = 0
 
-        weightKey = {"shortest": "distance", "fastest": "time", "cheapest": "cost"}.get(mode, "distance")
+        weightKey = {"shortest":"distance","fastest":"time","cheapest":"cost"}.get(mode,"distance")
 
         for _ in range(n):
             minDist = float('inf')
@@ -87,13 +98,13 @@ class Graph:
             current = pred[current]
         path.reverse()
 
-        if path[0] != startCity:
+        if path[0] != startCity:  # no path found
             return {"path": [], "distance": 0, "time": 0, "cost": 0}
 
         total_distance, total_time, total_cost = 0, 0, 0
-        for i in range(len(path) - 1):
+        for i in range(len(path)-1):
             u = self.vertexData[path[i]]
-            v = self.vertexData[path[i + 1]]
+            v = self.vertexData[path[i+1]]
             edge = self.adjMatrix[u][v]
             total_distance += edge["distance"]
             total_time += edge["time"]
@@ -116,8 +127,8 @@ domesticGraph.loadFromCSV("routes_india.csv")
 @app.route("/cities")
 def get_cities():
     scope = request.args.get("scope", "global")
+    graph = globalGraph if scope=="global" else domesticGraph
     result = []
-    graph = globalGraph if scope == "global" else domesticGraph
     for city in graph.vertexData:
         lat, lon = graph.coordinates[city]
         result.append({"name": city, "lat": lat, "lon": lon})
@@ -131,19 +142,19 @@ def shortest_path():
     mode = data.get("mode", "shortest")
     scope = data.get("scope", "global")
 
-    graph = globalGraph if scope == "global" else domesticGraph
+    graph = globalGraph if scope=="global" else domesticGraph
 
     if src not in graph.vertexData or dest not in graph.vertexData:
-        return jsonify({"error": "Invalid city names"}), 400
+        return jsonify({"error":"Invalid city names"}), 400
 
     result = graph.dijkstras(src, dest, mode)
     if not result["path"]:
-        return jsonify({"error": "No path found"}), 400
+        return jsonify({"error":"No path found"}), 400
 
     return jsonify(result)
 
 # -----------------------
-# Serve frontend.html
+# Serve frontend
 # -----------------------
 @app.route("/")
 def serve_frontend():
@@ -152,5 +163,5 @@ def serve_frontend():
 # -----------------------
 # Run Flask
 # -----------------------
-if __name__ == "__main__":
+if __name__=="__main__":
     app.run(debug=True)
