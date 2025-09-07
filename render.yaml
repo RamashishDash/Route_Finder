@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: final1
+    env: python
+    region: oregon
+    plan: free
+    pythonVersion: "3.12"
+    buildCommand: "pip install --upgrade pip setuptools && pip install -r requirements.txt"
+    startCommand: "python backend.py"
+    repo: "https://github.com/RamashishDash/project"
+    branch: "main"
