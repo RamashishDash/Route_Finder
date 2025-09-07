@@ -37,15 +37,7 @@ class Graph:
                 dest = row["target"]
                 dist = float(row["distance_km"])
                 time = float(row["time_hr"])
-
-                # ---- Currency normalization ----
-                if "cost_usd" in row:
-                    # convert USD → INR (approx ₹83 per $)
-                    cost = float(row["cost_usd"]) * 83.0
-                elif "cost_inr" in row:
-                    cost = float(row["cost_inr"])
-                else:
-                    cost = 0.0
+                cost = float(row.get("cost_inr", 0))  # Read INR directly
 
                 src_lat = float(row["source_lat"])
                 src_lon = float(row["source_lon"])
@@ -90,7 +82,7 @@ class Graph:
                         dis[v] = dis[u] + weight
                         pred[v] = u
 
-        # reconstruct path
+        # Reconstruct path
         path = []
         current = endIndex
         while current != -1:
@@ -116,10 +108,10 @@ class Graph:
 # Load graphs
 # -----------------------
 globalGraph = Graph()
-globalGraph.loadFromCSV("routes.csv")
+globalGraph.loadFromCSV("routes.csv")       # costs in INR
 
 domesticGraph = Graph()
-domesticGraph.loadFromCSV("routes_india.csv")
+domesticGraph.loadFromCSV("routes_india.csv")  # costs in INR
 
 # -----------------------
 # Flask API
