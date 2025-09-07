@@ -20,10 +20,8 @@ class Graph:
             idx = len(self.vertexData)
             self.vertexData[city] = idx
             self.coordinates[city] = (lat, lon)
-            # Expand existing rows in adjacency matrix
             for row in self.adjMatrix:
                 row.append(None)
-            # Add new row for new vertex
             self.adjMatrix.append([None] * len(self.vertexData))
 
     def addEdge(self, src, dest, dist, time, cost):
@@ -39,7 +37,7 @@ class Graph:
                 dest = row["target"]
                 dist = float(row["distance_km"])
                 time = float(row["time_hr"])
-                cost = float(row.get("cost_inr", 0))  # INR only
+                cost = float(row.get("cost_inr", 0))  # numeric only
 
                 src_lat = float(row["source_lat"])
                 src_lon = float(row["source_lon"])
@@ -67,7 +65,6 @@ class Graph:
         weightKey = {"shortest":"distance","fastest":"time","cheapest":"cost"}.get(mode, "distance")
 
         for _ in range(n):
-            # Select unvisited node with smallest distance
             minDist = float('inf')
             u = -1
             for i in range(n):
@@ -85,7 +82,6 @@ class Graph:
                         dis[v] = dis[u] + weight
                         pred[v] = u
 
-        # Reconstruct path
         path = []
         current = endIndex
         while current != -1:
@@ -105,16 +101,17 @@ class Graph:
             total_time += edge["time"]
             total_cost += edge["cost"]
 
+        # cost is numeric only
         return {"path": path, "distance": total_distance, "time": total_time, "cost": total_cost}
 
 # -----------------------
 # Load graphs
 # -----------------------
 globalGraph = Graph()
-globalGraph.loadFromCSV("routes.csv")       # costs in INR
+globalGraph.loadFromCSV("routes.csv")       # INR numeric
 
 domesticGraph = Graph()
-domesticGraph.loadFromCSV("routes_india.csv")  # costs in INR
+domesticGraph.loadFromCSV("routes_india.csv")  # INR numeric
 
 # -----------------------
 # Flask API
