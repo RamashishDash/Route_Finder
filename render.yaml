@@ -1,9 +1,10 @@
 services:
   - type: web
-    name: final1
+    name: project-web
     env: python
-    region: oregon
     plan: free
-    pythonVersion: "3.12"
-    buildCommand: "pip install --upgrade pip setuptools && pip install -r requirements.txt"
-    startCommand: "python backend.py"
+    buildCommand: |
+      pip install --upgrade pip setuptools wheel
+      pip install -r requirements.txt
+    startCommand: gunicorn app:app  # replace 'app:app' with your Flask entrypoint
+    pythonVersion: 3.13.4

@@ -1,9 +1,12 @@
-# Build tools
-pip>=25.2
-setuptools>=80.10.0
-wheel>=0.40.0
+# Core dependencies
+Flask==2.3.3
+requests==2.31.0
+python-dotenv==1.0.0
+gunicorn==21.2.0
 
-# App dependencies
-flask==2.3.3
-pandas==2.0.3
-numpy==1.24.4
+# Optional, for database
+SQLAlchemy==2.0.25
+psycopg2-binary==2.9.9  # if using PostgreSQL
+
+# Optional, YAML handling
+PyYAML==6.0
