@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🌍 Global Route Finder</title>
+<title>🌍 Global & Domestic Route Finder</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Bootstrap 5 -->
@@ -12,9 +12,11 @@
 
 <style>
 body { font-family: 'Segoe UI', sans-serif; min-height: 100vh; transition: background 0.5s ease, color 0.5s ease; }
-.navbar { background: linear-gradient(90deg, #0072ff, #4a00e0); box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: background 0.5s ease; }
-#map { height: 520px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
-.card { border-radius: 16px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); transition: background 0.5s ease, color 0.5s ease; }
+.navbar { background: linear-gradient(90deg, #0072ff, #4a00e0); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.page { display:none; }
+.page.active { display:block; }
+#mapGlobal, #mapDomestic { height: 520px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+.card { border-radius: 16px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 .results { background: rgba(240, 248, 255, 0.7); padding: 12px; border-radius: 12px; font-size: 0.95rem; animation: fadeIn 0.6s ease; }
 ol li { transition: all 0.2s ease; cursor: pointer; }
 ol li:hover { background: rgba(74, 0, 224, 0.1); border-radius: 6px; padding-left: 4px; }
@@ -33,163 +35,223 @@ body.dark ol li:hover { background: rgba(255, 0, 100, 0.2); }
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark px-3">
-  <a class="navbar-brand fw-bold text-white" href="#">🌍 Global Route Finder</a>
+  <a class="navbar-brand fw-bold text-white" href="#">🌍 Route Finder</a>
+  <div class="navbar-nav ms-3">
+    <a class="nav-link text-white" href="#" onclick="showPage('home')">Home</a>
+    <a class="nav-link text-white" href="#" onclick="showPage('global')">Global Routes</a>
+    <a class="nav-link text-white" href="#" onclick="showPage('domestic')">Domestic Routes</a>
+    <a class="nav-link text-white" href="#" onclick="showPage('about')">About</a>
+  </div>
   <button id="themeToggle" class="btn btn-sm btn-light ms-auto">🌙 Dark Mode</button>
 </nav>
 
-<div class="container-fluid mt-4">
+<!-- HOME -->
+<div id="home" class="page active container mt-5 text-center">
+  <h1 class="fw-bold text-primary">🌍 Welcome to Route Finder</h1>
+  <p class="lead mt-3">Find optimized routes globally or within India 🇮🇳 — shortest, fastest, or cheapest.</p>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg" 
+       class="img-fluid rounded shadow mt-4" style="max-height:400px;" alt="World Map">
+</div>
+
+<!-- GLOBAL ROUTES -->
+<div id="global" class="page container-fluid mt-4">
   <div class="row g-4">
     <div class="col-lg-3">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Route Controls</h5>
-          <div class="mb-3">
-            <label for="source" class="form-label">Source City</label>
-            <select id="source" class="form-select"></select>
-          </div>
-          <div class="mb-3">
-            <label for="destination" class="form-label">Destination City</label>
-            <select id="destination" class="form-select"></select>
-          </div>
-          <div class="mb-3">
-            <label for="mode" class="form-label">Optimization Mode</label>
-            <select id="mode" class="form-select">
-              <option value="shortest">Shortest Distance</option>
-              <option value="fastest">Fastest Time</option>
-              <option value="cheapest">Cheapest Cost</option>
-            </select>
-          </div>
-          <div class="d-grid gap-2">
-            <button id="findBtn" class="btn btn-success">🚀 Find Route</button>
-            <button id="clearBtn" class="btn btn-outline-secondary">🧹 Clear</button>
-          </div>
-          <div class="results mt-4" id="results">
-            <h6 class="fw-bold text-dark">📊 Route Info</h6>
-            <div>Distance: <span id="distance">-</span> km</div>
-            <div>Time: <span id="time">-</span> hr</div>
-            <div>Cost: $<span id="cost">-</span></div>
-            <div class="mt-2"><strong>Path:</strong>
-              <ol id="pathList"></ol>
-            </div>
-          </div>
+      <div class="card"><div class="card-body">
+        <h5 class="card-title text-primary">🌍 Global Route Controls</h5>
+        <div class="mb-3"><label class="form-label">Source City</label><select id="sourceGlobal" class="form-select"></select></div>
+        <div class="mb-3"><label class="form-label">Destination City</label><select id="destGlobal" class="form-select"></select></div>
+        <div class="mb-3"><label class="form-label">Optimization Mode</label>
+          <select id="modeGlobal" class="form-select">
+            <option value="shortest">Shortest Distance</option>
+            <option value="fastest">Fastest Time</option>
+            <option value="cheapest">Cheapest Cost</option>
+          </select>
         </div>
-      </div>
+        <div class="d-grid gap-2">
+          <button id="findBtnGlobal" class="btn btn-success">🚀 Find Route</button>
+          <button id="clearBtnGlobal" class="btn btn-outline-secondary">🧹 Clear</button>
+        </div>
+        <div class="results mt-4">
+          <h6 class="fw-bold">📊 Route Info</h6>
+          <div>Distance: <span id="distanceGlobal">-</span> km</div>
+          <div>Time: <span id="timeGlobal">-</span> hr</div>
+          <div>Cost: $<span id="costGlobal">-</span></div>
+          <div class="mt-2"><strong>Path:</strong><ol id="pathListGlobal"></ol></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="col-lg-9"><div id="mapGlobal"></div></div>
+  </div>
+</div>
+
+<!-- DOMESTIC ROUTES -->
+<div id="domestic" class="page container-fluid mt-4">
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="card"><div class="card-body">
+        <h5 class="card-title text-success">🇮🇳 Domestic Route Controls</h5>
+        <div class="mb-3"><label class="form-label">Source City</label><select id="sourceDomestic" class="form-select"></select></div>
+        <div class="mb-3"><label class="form-label">Destination City</label><select id="destDomestic" class="form-select"></select></div>
+        <div class="mb-3"><label class="form-label">Optimization Mode</label>
+          <select id="modeDomestic" class="form-select">
+            <option value="shortest">Shortest Distance</option>
+            <option value="fastest">Fastest Time</option>
+            <option value="cheapest">Cheapest Cost</option>
+          </select>
+        </div>
+        <div class="d-grid gap-2">
+          <button id="findBtnDomestic" class="btn btn-success">🚀 Find Route</button>
+          <button id="clearBtnDomestic" class="btn btn-outline-secondary">🧹 Clear</button>
+        </div>
+        <div class="results mt-4">
+          <h6 class="fw-bold">📊 Route Info</h6>
+          <div>Distance: <span id="distanceDomestic">-</span> km</div>
+          <div>Time: <span id="timeDomestic">-</span> hr</div>
+          <div>Cost: ₹<span id="costDomestic">-</span></div>
+          <div class="mt-2"><strong>Path:</strong><ol id="pathListDomestic"></ol></div>
+        </div>
+      </div></div>
+    </div>
+    <div class="col-lg-9"><div id="mapDomestic"></div></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div id="about" class="page container mt-5">
+  <h2 class="fw-bold text-primary">ℹ️ About This Project</h2>
+  <p class="mt-3">
+    This web app demonstrates route optimization using Dijkstra’s algorithm. 
+    Users can find optimized routes globally or within India 🇮🇳 — by shortest distance, fastest time, or cheapest cost. 
+    Built as a student project by 2nd-year students from Silicon University.
+  </p>
+
+  <h4 class="fw-bold mt-4">👨‍💻 Team Superchip</h4>
+  <div class="row g-4 mt-2">
+    <!-- Anish -->
+    <div class="col-md-3 text-center">
+      <img src="anish.png" alt="Anish Panda" class="img-fluid rounded-circle mb-2" style="height:120px;">
+      <div><strong>Anish Panda</strong></div>
+      <div><a href="https://www.linkedin.com/in/anishpanda2006/" target="_blank">LinkedIn</a></div>
     </div>
 
-    <div class="col-lg-9">
-      <div id="map"></div>
+    <!-- Ramashish -->
+    <div class="col-md-3 text-center">
+      <img src="ramashish.png" alt="Ramashish Dash" class="img-fluid rounded-circle mb-2" style="height:120px;">
+      <div><strong>Ramashish Dash</strong></div>
+      <div><a href="https://www.linkedin.com/in/ramashish-dash-9440a0373/" target="_blank">LinkedIn</a></div>
+    </div>
+
+    <!-- P. Panchanana Subudhi -->
+    <div class="col-md-3 text-center">
+      <div style="height:120px; background:#ddd; border-radius:50%; display:flex;align-items:center;justify-content:center;">No Image</div>
+      <div><strong>P. Panchanana Subudhi</strong></div>
+      <div><a href="https://www.linkedin.com/in/panchanana-subudhi-322908324" target="_blank">LinkedIn</a></div>
+    </div>
+
+    <!-- Mrutyunjaya Sahoo -->
+    <div class="col-md-3 text-center">
+      <div style="height:120px; background:#ddd; border-radius:50%; display:flex;align-items:center;justify-content:center;">No Image</div>
+      <div><strong>Mrutyunjaya Sahoo</strong></div>
+      <div><a href="https://in.linkedin.com/in/mrutyunjaya-sahoo-806863300" target="_blank">LinkedIn</a></div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
-const API_BASE = "https://project-3-szyj.onrender.com";
-const sourceSel = document.getElementById('source');
-const destSel = document.getElementById('destination');
-const modeSel = document.getElementById('mode');
-const themeToggle = document.getElementById('themeToggle');
-let currentRoute = null;
-let markers = {};
+const API_BASE="http://127.0.0.1:5000";
+let mapGlobal,mapDomestic;
+let globalMarkers={},domesticMarkers={};
+let globalMarkersLayer=L.layerGroup(),domesticMarkersLayer=L.layerGroup();
+let globalRoute={val:null},domesticRoute={val:null};
 
-// THEME TOGGLE
-function applyTheme(dark){
-  if(dark){document.body.classList.add("dark"); themeToggle.textContent="☀️ Light Mode";}
-  else{document.body.classList.remove("dark"); themeToggle.textContent="🌙 Dark Mode";}
-  localStorage.setItem("darkMode", dark?"true":"false");
-}
-themeToggle.onclick = ()=>applyTheme(!document.body.classList.contains("dark"));
+// THEME
+function applyTheme(dark){ if(dark){document.body.classList.add("dark");themeToggle.textContent="☀️ Light Mode";} else{document.body.classList.remove("dark");themeToggle.textContent="🌙 Dark Mode";} localStorage.setItem("darkMode",dark?"true":"false");}
+document.getElementById("themeToggle").onclick=()=>applyTheme(!document.body.classList.contains("dark"));
 applyTheme(localStorage.getItem("darkMode")==="true");
 
-// MAP INIT (full world, no repeated tiles)
-const map = L.map('map', { worldCopyJump:false }).setView([20,0],2);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:19,
-    attribution:'&copy; OpenStreetMap',
-    noWrap:true       // <-- prevents horizontal repetition
-}).addTo(map);
-
-// START / END MARKERS: large cerulean circles
-function makeStartMarker(latlng, city){
-  return L.circleMarker(latlng, {radius:10, fillColor:'deepskyblue', color:'deepskyblue', weight:2, fillOpacity:0.9}).bindPopup(`<b>${city}</b>`).addTo(map);
-}
-function makeEndMarker(latlng, city){
-  return L.circleMarker(latlng, {radius:10, fillColor:'deepskyblue', color:'deepskyblue', weight:2, fillOpacity:0.9}).bindPopup(`<b>${city}</b>`).addTo(map);
+// NAV
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  setTimeout(()=>{
+    if(id==="global"){mapGlobal.invalidateSize();}
+    if(id==="domestic"){mapDomestic.invalidateSize();}
+  },200);
 }
 
-// INTERMEDIATE CITIES: small steel blue dots
-function makeCircleMarker(lat, lon, name){
-  return L.circleMarker([lat, lon], {radius:5, fillColor:'steelblue', color:'#fff', weight:1, fillOpacity:0.8}).bindPopup(`<b>${name}</b>`).addTo(map);
+// MAPS
+function initMaps(){
+    mapGlobal=L.map('mapGlobal').setView([20,0],2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap',noWrap:true}).addTo(mapGlobal);
+    mapDomestic=L.map('mapDomestic').setView([22.5,79],5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap',noWrap:true}).addTo(mapDomestic);
 }
+initMaps();
 
 // FETCH CITIES
-fetch(`${API_BASE}/cities`).then(res=>res.json()).then(cities=>{
-  cities.forEach(city=>{
-    sourceSel.add(new Option(city.name, city.name));
-    destSel.add(new Option(city.name, city.name));
-    markers[city.name]=makeCircleMarker(city.lat, city.lon, city.name);
-  });
-});
+function loadCities(scope,srcSel,destSel,map,markersObj,markersLayer){
+    fetch(`${API_BASE}/cities?scope=${scope}`).then(r=>r.json()).then(cities=>{
+        srcSel.innerHTML=""; destSel.innerHTML="";
+        markersLayer.clearLayers();
+        cities.forEach(c=>{
+            srcSel.add(new Option(c.name,c.name));
+            destSel.add(new Option(c.name,c.name));
+            let m=L.circleMarker([c.lat,c.lon],{radius:5,fillColor:'steelblue',color:'#fff',weight:1,fillOpacity:0.8}).bindPopup(`<b>${c.name}</b>`);
+            markersObj[c.name]=m; markersLayer.addLayer(m);
+        });
+        map.addLayer(markersLayer);
+        if(cities.length>0) map.fitBounds(markersLayer.getBounds().pad(0.2));
+    });
+}
+loadCities("global",document.getElementById("sourceGlobal"),document.getElementById("destGlobal"),mapGlobal,globalMarkers,globalMarkersLayer);
+loadCities("domestic",document.getElementById("sourceDomestic"),document.getElementById("destDomestic"),mapDomestic,domesticMarkers,domesticMarkersLayer);
 
 // FIND ROUTE
-document.getElementById('findBtn').onclick = ()=>{
-  const source=sourceSel.value, dest=destSel.value, mode=modeSel.value;
-  if(!source||!dest||source===dest){alert("Select different source and destination"); return;}
-
-  fetch(`${API_BASE}/shortest-path`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({source,destination:dest,mode})
-  }).then(res=>res.json()).then(data=>{
-    if(data.error){alert(data.error); return;}
-
-    // Remove all markers
-    Object.values(markers).forEach(m=>map.removeLayer(m));
-
-    // Add start/end/intermediate markers
-    data.path.forEach((city,idx)=>{
-      const latlng=markers[city]?.getLatLng?.() || [0,0];
-      if(idx===0) markers[city]=makeStartMarker(latlng, city);
-      else if(idx===data.path.length-1) markers[city]=makeEndMarker(latlng, city);
-      else markers[city]=L.circleMarker(latlng,{radius:5, fillColor:'steelblue', color:'#fff', weight:1, fillOpacity:0.8}).bindPopup(`<b>${city}</b>`).addTo(map);
+function findRoute(scope,map,markersObj,routeRef,modeSel,srcSel,destSel,distEl,timeEl,costEl,pathListEl){
+    const source=srcSel.value,dest=destSel.value,mode=modeSel.value;
+    if(!source||!dest||source===dest){alert("Select different source and destination");return;}
+    fetch(`${API_BASE}/shortest-path`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({source,destination:dest,mode,scope})
+    }).then(r=>r.json()).then(data=>{
+        if(data.error){alert(data.error);return;}
+        if(routeRef.val){map.removeLayer(routeRef.val);}
+        const coords=data.path.map(c=>markersObj[c].getLatLng());
+        routeRef.val=L.polyline(coords,{color:'darkturquoise',weight:5,opacity:0.8}).addTo(map);
+        map.fitBounds(routeRef.val.getBounds().pad(0.2));
+        distEl.textContent=data.distance.toFixed(2);
+        timeEl.textContent=data.time.toFixed(2);
+        costEl.textContent = (data.cost * 83).toFixed(2); // Convert USD → INR
+        pathListEl.innerHTML="";
+        data.path.forEach(city=>{
+            const li=document.createElement("li");
+            li.textContent=city;
+            li.onclick=()=>{map.setView(markersObj[city].getLatLng(),6,{animate:true}); markersObj[city].openPopup();};
+            pathListEl.appendChild(li);
+        });
     });
-
-    // Update route info
-    document.getElementById('distance').textContent=data.distance.toFixed(2);
-    document.getElementById('time').textContent=data.time.toFixed(2);
-    document.getElementById('cost').textContent=data.cost.toFixed(2);
-
-    const list=document.getElementById('pathList'); list.innerHTML="";
-    data.path.forEach(city=>{
-      const li=document.createElement("li"); li.textContent=city;
-      li.onclick=()=>{map.setView(markers[city].getLatLng(),6,{animate:true}); markers[city].openPopup();};
-      list.appendChild(li);
-    });
-
-    // Draw route polyline
-    if(currentRoute) map.removeLayer(currentRoute);
-    const coords=data.path.map(c=>markers[c].getLatLng());
-    currentRoute=L.polyline(coords,{color:'darkturquoise', weight:5, opacity:0.8}).addTo(map);
-    map.fitBounds(currentRoute.getBounds().pad(0.2));
-  });
-};
+}
 
 // CLEAR ROUTE
-document.getElementById('clearBtn').onclick = ()=>{
-  if(currentRoute) map.removeLayer(currentRoute); currentRoute=null;
-  Object.keys(markers).forEach(city=>{
-    if(markers[city]?.remove) markers[city].remove();
-    const latlng = markers[city]?.getLatLng?.() || [0,0];
-    markers[city]=makeCircleMarker(latlng.lat, latlng.lng, city);
-  });
-  document.getElementById('distance').textContent="-";
-  document.getElementById('time').textContent="-";
-  document.getElementById('cost').textContent="-";
-  document.getElementById('pathList').innerHTML="";
-};
+function clearRoute(map,markersLayer,markersObj,routeRef,distEl,timeEl,costEl,pathListEl){
+    if(routeRef.val){map.removeLayer(routeRef.val); routeRef.val=null;}
+    markersLayer.clearLayers();
+    Object.keys(markersObj).forEach(city=>{markersLayer.addLayer(markersObj[city]);});
+    map.fitBounds(markersLayer.getBounds().pad(0.2));
+    distEl.textContent="-"; timeEl.textContent="-"; costEl.textContent="-";
+    pathListEl.innerHTML="";
+}
+
+// BUTTON EVENTS
+document.getElementById("findBtnGlobal").onclick=()=>findRoute("global",mapGlobal,globalMarkers,globalRoute,document.getElementById("modeGlobal"),document.getElementById("sourceGlobal"),document.getElementById("destGlobal"),document.getElementById("distanceGlobal"),document.getElementById("timeGlobal"),document.getElementById("costGlobal"),document.getElementById("pathListGlobal"));
+document.getElementById("clearBtnGlobal").onclick=()=>clearRoute(mapGlobal,globalMarkersLayer,globalMarkers,globalRoute,document.getElementById("distanceGlobal"),document.getElementById("timeGlobal"),document.getElementById("costGlobal"),document.getElementById("pathListGlobal"));
+document.getElementById("findBtnDomestic").onclick=()=>findRoute("domestic",mapDomestic,domesticMarkers,domesticRoute,document.getElementById("modeDomestic"),document.getElementById("sourceDomestic"),document.getElementById("destDomestic"),document.getElementById("distanceDomestic"),document.getElementById("timeDomestic"),document.getElementById("costDomestic"),document.getElementById("pathListDomestic"));
+document.getElementById("clearBtnDomestic").onclick=()=>clearRoute(mapDomestic,domesticMarkersLayer,domesticMarkers,domesticRoute,document.getElementById("distanceDomestic"),document.getElementById("timeDomestic"),document.getElementById("costDomestic"),document.getElementById("pathListDomestic"));
 </script>
+
 </body>
 </html>
