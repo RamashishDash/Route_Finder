@@ -1,6 +1,9 @@
-setuptools>=65.0.0
-wheel
+# Build tools
+pip>=25.2
+setuptools>=80.10.0
+wheel>=0.40.0
+
+# App dependencies
 flask==2.3.3
 pandas==2.0.3
 numpy==1.24.4
-requests==2.31.0
