@@ -29,7 +29,7 @@ class Graph:
         self.adjMatrix[i][j] = {"distance": dist, "time": time, "cost": cost}
         self.adjMatrix[j][i] = {"distance": dist, "time": time, "cost": cost}
 
-    ddef loadFromCSV(self, filename):
+    def loadFromCSV(self, filename):
     with open(filename, "r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
